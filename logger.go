@@ -5,56 +5,115 @@
 
 package logger
 
-import (
-	"io"
-	"log"
-)
+// LogLevel is an uint8 that corresponds to a logging level
+type LogLevel uint8
 
-var logLevel int
+// constants for LogLevels
+const (
+	All LogLevel = iota + 1
+	Verbose
+	Normal
+	ErrorsOnly
+	Test
+)
 
 // Logger struct
 type Logger struct {
-	Debug Level
-
-	Info Level
-
-	Notice Level
-
-	Error Level
+	logLevel  LogLevel
+	timestamp bool
+	colored   bool
+	Debug     Event
+	Info      Event
+	Notice    Event
+	Error     Event
 }
 
-// Level contains the logger level
-type Level struct {
-	*log.Logger
+// Event contains information about the logging level
+type Event struct {
+	timestamp bool
+	colored   bool
+	colors    int
+	prefix    string
 }
 
-// Init initializes the logger
-func (l *Logger) Init(debugHandle io.Writer, infoHandle io.Writer, noticeHandle io.Writer, errorHandle io.Writer, level int) {
-	l.Debug.Logger = log.New(debugHandle, "DEBUG: ", log.Ldate|log.Ltime)
-	l.Info.Logger = log.New(infoHandle, "INFO: ", log.Ldate|log.Ltime)
-	l.Notice.Logger = log.New(noticeHandle, "NOTICE: ", log.Ldate|log.Ltime)
-	l.Error.Logger = log.New(errorHandle, "ERROR: ", log.Ldate|log.Ltime)
-	logLevel = level
+const None int = 0
+
+// wrappers for aurora special formats
+const (
+	Bold int = 1 << iota
+	Inverse
+)
+
+// wrappers for aurora foreground colors
+const (
+	BlackFg int = (1 + iota) << 16
+	RedFg
+	GreenFg
+	BrownFg
+	BlueFg
+	MagentaFg
+	CyanFg
+	GrayFg
+)
+
+// wrappers for aurora background colors
+const (
+	BlackBg int = (1 + iota) << 8
+	RedBg
+	GreenBg
+	BrownBg
+	BlueBg
+	MagentaBg
+	CyanBg
+	GrayBg
+)
+
+// New creates a new Logger based on the arguments. An empty New() will return a Logger with default settings. If called with one boolean arg, it will determine whether or not to show timestamps. The second arg is for whether or not colorize the output.
+func New(a ...bool) *Logger {
+	l := Logger{}
+	return &l
 }
 
-// Log writes a message to the log
-func (l *Level) Log(format string, a ...interface{}) {
-	switch l.Logger.Prefix() {
-	case "DEBUG: ":
-		if logLevel == 0 {
-			l.Logger.Printf(format, a...)
-		}
-	case "INFO: ":
-		if logLevel <= 1 {
-			l.Logger.Printf(format, a...)
-		}
-	case "NOTICE: ":
-		if logLevel <= 2 {
-			l.Logger.Printf(format, a...)
-		}
-	case "ERROR: ":
-		if logLevel <= 3 {
-			l.Logger.Printf(format, a...)
-		}
-	}
+// LogLevel returns the current log level
+func (l *Logger) LogLevel() LogLevel {
+	return l.logLevel
+}
+
+// SetLogLevel sets the logLevel
+func (l *Logger) SetLogLevel(lv LogLevel) {
+}
+
+// ShowTimestamp sets whether or not to show timestamps for the entire logger
+func (l *Logger) ShowTimestamp(b bool) {
+
+}
+
+// ShowColor sets whether or not to use colors for the entire logger
+func (l *Logger) ShowColor(b bool) {
+
+}
+
+// ShowTimestamp sets whether or not to show timestamps for this log event.
+func (e *Event) ShowTimestamp(b bool) {
+
+}
+
+// ShowColor sets wether or not to show color for this log event
+func (e *Event) ShowColor(b bool) {
+
+}
+
+// SetColors sets the foreground color, background color, and special format of the log event
+func (e *Event) SetColors() {
+
+}
+
+// Prefix returns the prefix of the log event
+func (e *Event) Prefix() string {
+	return ""
+}
+
+// Log logs the given message via the appropriate log event to STDERR
+func (e *Event) Log() {
+
 }
