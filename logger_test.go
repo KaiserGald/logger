@@ -5,69 +5,78 @@
 
 package logger
 
-import "testing"
+import (
+	"fmt"
+	"reflect"
+	"strings"
+	"testing"
+	"time"
+)
 
 func TestNew(t *testing.T) {
-	defexpected := Logger{
+	defexpected := Logger{}
+	defexpected = Logger{
 		Normal,
 		true,
 		true,
-		Event{true, true, GreenFg | None | None, "DEBUG: "},
-		Event{true, true, None | None | None, "INFO: "},
-		Event{true, true, BrownFg | None | None, "NOTICE: "},
-		Event{true, true, RedFg | None | None, "ERROR: "},
+		Event{&defexpected, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&defexpected, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&defexpected, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&defexpected, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	defactual := New()
-
-	if defactual != &defexpected {
+	if !reflect.DeepEqual(defactual, &defexpected) {
 		t.Errorf("Default logger not created correctly")
 	}
 
-	ntsexpected := Logger{
+	ntsexpected := Logger{}
+	ntsexpected = Logger{
 		Normal,
 		false,
 		true,
-		Event{true, true, GreenFg | None | None, "DEBUG: "},
-		Event{true, true, None | None | None, "INFO: "},
-		Event{true, true, BrownFg | None | None, "NOTICE: "},
-		Event{true, true, RedFg | None | None, "ERROR: "},
+		Event{&ntsexpected, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&ntsexpected, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&ntsexpected, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&ntsexpected, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	ntsactual := New(false)
 
-	if ntsactual != &ntsexpected {
+	if !reflect.DeepEqual(ntsactual, &ntsexpected) {
 		t.Errorf("No timestamp logger not created correctly")
 	}
 
-	ncexpected := Logger{
+	ncexpected := Logger{}
+	ncexpected = Logger{
 		Normal,
 		true,
 		false,
-		Event{true, true, GreenFg | None | None, "DEBUG: "},
-		Event{true, true, None | None | None, "INFO: "},
-		Event{true, true, BrownFg | None | None, "NOTICE: "},
-		Event{true, true, RedFg | None | None, "ERROR: "},
+		Event{&ncexpected, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&ncexpected, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&ncexpected, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&ncexpected, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	ncactual := New(true, false)
 
-	if ncactual != &ncexpected {
+	if !reflect.DeepEqual(ncactual, &ncexpected) {
 		t.Errorf("No color logger not created correctly")
 	}
 
-	falseexpected := Logger{
+	falseexpected := Logger{}
+	falseexpected = Logger{
 		Normal,
 		false,
 		false,
-		Event{true, true, GreenFg | None | None, "DEBUG: "},
-		Event{true, true, None | None | None, "INFO: "},
-		Event{true, true, BrownFg | None | None, "NOTICE: "},
-		Event{true, true, RedFg | None | None, "ERROR: "},
+		Event{&falseexpected, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&falseexpected, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&falseexpected, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&falseexpected, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	falseactual := New(false, false)
-	if falseactual != &falseexpected {
+	if !reflect.DeepEqual(falseactual, &falseexpected) {
 		t.Errorf("No options logger not created correctly")
 	}
 }
@@ -220,7 +229,39 @@ func TestEventShowColor(t *testing.T) {
 }
 
 func TestEventSetColors(t *testing.T) {
+	test := New()
+	test.Debug.SetColors(Bold | MagentaFg | GrayBg)
+	if test.Debug.colors != (Bold | MagentaFg | GrayBg) {
+		t.Errorf("Colors were not changed")
+	}
+	test.Debug.SetColors(GrayFg | MagentaBg)
+	if test.Debug.colors != (GrayFg | MagentaBg) {
+		t.Errorf("Colors were not changed")
+	}
+	test.Debug.SetColors(RedFg)
+	if test.Debug.colors != (RedFg) {
+		t.Errorf("Colors were not changed")
+	}
+	test.Debug.SetColors(GreenBg)
+	if test.Debug.colors != (GreenBg) {
+		t.Errorf("Colors were not changed")
+	}
+	test.Debug.SetColors(Bold)
+	if test.Debug.colors != (Bold) {
+		t.Errorf("Colors were not changed")
+	}
+}
 
+func TestSetFormat(t *testing.T) {
+	test := New()
+	test.Debug.SetFormat(LongDate | Time24Hour | TimeZone)
+	expected := LongDate | Time24Hour | TimeZone
+	if test.Debug.format != expected {
+		t.Errorf("Format flags do not match, expected '%v' got '%v'", expected, test.Debug.format)
+	}
+	if err := test.Debug.SetFormat(LongDate | ShortDate); err == nil {
+		t.Errorf("Invalid flag combination did not trigger error")
+	}
 }
 
 func TestEventPrefix(t *testing.T) {
@@ -247,5 +288,259 @@ func TestEventPrefix(t *testing.T) {
 }
 
 func TestEventLog(t *testing.T) {
+	test := New()
+	message := "Test message"
+	test.SetLogLevel(All)
+	res, err := test.Debug.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	tn := time.Now()
+	tf := tn.Format("1/2/2006 3:04:05 PM MST")
+	fmt.Printf(res)
+	expected := tf + " - " + test.Debug.Prefix() + " " + message
+	res = trimSpaces(res)
+	expected = trimSpaces(expected)
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", res, expected)
+	}
 
+	test.SetLogLevel(Normal)
+	res, err = test.Debug.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	expected = ""
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
+	}
+
+	test.SetLogLevel(Verbose)
+	test.Info.SetFormat(Time24Hour | TimeZone)
+	res, err = test.Info.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	tn = time.Now()
+	tf = tn.Format("15:04:05 MST")
+	expected = tf + " - " + test.Info.Prefix() + " " + message
+	res = trimSpaces(res)
+	expected = trimSpaces(expected)
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
+	}
+
+	test.SetLogLevel(Normal)
+	test.Notice.SetFormat(LongDate | TimeZone)
+	res, err = test.Notice.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	tn = time.Now()
+	tf = tn.Format("2 Jan 2006 MST")
+	expected = tf + " - " + test.Notice.Prefix() + " " + message
+	res = trimSpaces(res)
+	expected = trimSpaces(expected)
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
+	}
+
+	test.SetLogLevel(ErrorsOnly)
+	test.Error.SetFormat(LongDate | Time12Hour | TimeZone)
+	res, err = test.Error.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	tn = time.Now()
+	tf = tn.Format("2 Jan 2006 3:04:05 PM MST")
+	expected = tf + " - " + test.Error.Prefix() + " " + message
+	res = trimSpaces(res)
+	expected = trimSpaces(expected)
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
+	}
+
+	test.SetLogLevel(All)
+	test.Debug.format = ShortDate | LongDate
+	test.Info.format = ShortDate | LongDate
+	test.Notice.format = ShortDate | LongDate
+	test.Error.format = ShortDate | LongDate
+
+	if _, err = test.Debug.Log(message); err == nil {
+		t.Errorf("Bad format flags did not trigger error")
+	}
+	if _, err = test.Info.Log(message); err == nil {
+		t.Errorf("Bad format flags did not trigger error")
+	}
+	if _, err = test.Notice.Log(message); err == nil {
+		t.Errorf("Bad format flags did not trigger error")
+	}
+	if _, err = test.Error.Log(message); err == nil {
+		t.Errorf("Bad format flags did not trigger error")
+	}
+}
+
+func TestBuildMessage(t *testing.T) {
+	test := New()
+	now := time.Now()
+	timeformat := now.Format("1/2/2006 3:04:05 PM MST")
+	expected := timeformat + " - DEBUG: Test event"
+	actual, err := test.Debug.buildMessage("Test event", test.Debug.format)
+	if err != nil {
+		t.Errorf("Error building message: %v", err)
+	}
+	actual = trimSpaces(actual)
+	expected = trimSpaces(expected)
+	if actual != expected {
+		t.Errorf("Messages don't match, expected '%v' got '%v'", expected, actual)
+	}
+
+	_, err = test.Debug.buildMessage("Test event", ShortDate|LongDate)
+	if err == nil {
+		t.Errorf("Bad input did not trigger error")
+	}
+}
+
+func TestValidateTimestamp(t *testing.T) {
+	expected := false
+	actual := validateTimestamp(ShortDate | LongDate)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = false
+	actual = validateTimestamp(Time12Hour | Time24Hour)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = false
+	actual = validateTimestamp(ShortDate | LongDate | Time12Hour)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = false
+	actual = validateTimestamp(ShortDate | Time12Hour | Time24Hour)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = false
+	actual = validateTimestamp(ShortDate | LongDate | Time12Hour | Time24Hour)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = false
+	actual = validateTimestamp(ShortDate | LongDate | Time24Hour | TimeZone)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = false
+	actual = validateTimestamp(ShortDate | LongDate | Time12Hour | Time24Hour | TimeZone)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = true
+	actual = validateTimestamp(ShortDate | Time12Hour | TimeZone)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = true
+	actual = validateTimestamp(LongDate | Time24Hour | TimeZone)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = true
+	actual = validateTimestamp(LongDate)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = true
+	actual = validateTimestamp(Time12Hour)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+
+	expected = true
+	actual = validateTimestamp(LongDate | TimeZone)
+	if actual != expected {
+		t.Errorf("Mismatched results, expected '%v' got '%v'", expected, actual)
+	}
+}
+
+func TestBuildTimestamp(t *testing.T) {
+	test := New()
+	now := time.Now()
+	expectedf := now.Format("1/2/2006")
+	actualf, err := test.Debug.buildTimestamp(ShortDate)
+	if err != nil {
+		t.Errorf("Error building timestamp: %v", err)
+	}
+	actualf = trimSpaces(actualf)
+
+	if actualf != expectedf {
+		t.Errorf("Date doesn't match, expected '%v' got '%v'", expectedf, actualf)
+	}
+
+	now = time.Now()
+	expectedf = now.Format("2 Jan 2006")
+	actualf, err = test.Debug.buildTimestamp(LongDate)
+	if err != nil {
+		t.Errorf("Error building timestamp: %v", err)
+	}
+	actualf = trimSpaces(actualf)
+	if actualf != expectedf {
+		t.Errorf("Date doesn't match, expected '%v' got '%v'", expectedf, actualf)
+	}
+
+	now = time.Now()
+	expectedf = now.Format("3:04:05 PM")
+	actualf, err = test.Debug.buildTimestamp(Time12Hour)
+	if err != nil {
+		t.Errorf("Error building timestamp: %v", err)
+	}
+	actualf = trimSpaces(actualf)
+	if actualf != expectedf {
+		t.Errorf("Date doesn't match, expected '%v' got '%v'", expectedf, actualf)
+	}
+
+	now = time.Now()
+	expectedf = now.Format("15:04:05")
+	actualf, err = test.Debug.buildTimestamp(Time24Hour)
+	if err != nil {
+		t.Errorf("Error building timestamp: %v", err)
+	}
+	actualf = trimSpaces(actualf)
+	if actualf != expectedf {
+		t.Errorf("Date doesn't match, expected '%v' got '%v'", expectedf, actualf)
+	}
+
+	now = time.Now()
+	expectedf = now.Format("3:04:05 PM MST")
+	actualf, err = test.Debug.buildTimestamp(Time12Hour | TimeZone)
+	if err != nil {
+		t.Errorf("Error building timestamp: %v", err)
+	}
+	actualf = trimSpaces(actualf)
+	if actualf != expectedf {
+		t.Errorf("Date doesn't match, expected '%v' got '%v'", expectedf, actualf)
+	}
+
+	now = time.Now()
+	_, err = test.Debug.buildTimestamp(Time12Hour | Time24Hour)
+	if err == nil {
+		t.Errorf("Bad input did not trigger error")
+	}
+
+}
+
+func trimSpaces(s string) string {
+	return strings.Join(strings.Fields(s), " ")
 }
