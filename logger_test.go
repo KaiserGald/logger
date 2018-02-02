@@ -6,11 +6,12 @@
 package logger
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/logrusorgru/aurora"
 )
 
 func TestNew(t *testing.T) {
@@ -19,10 +20,11 @@ func TestNew(t *testing.T) {
 		Normal,
 		true,
 		true,
-		Event{&defexpected, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&defexpected, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&defexpected, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&defexpected, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
+		aurora.NewAurora(true),
+		Event{&defexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&defexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&defexpected, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&defexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	defactual := New()
@@ -35,10 +37,11 @@ func TestNew(t *testing.T) {
 		Normal,
 		false,
 		true,
-		Event{&ntsexpected, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&ntsexpected, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&ntsexpected, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&ntsexpected, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
+		aurora.NewAurora(true),
+		Event{&ntsexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&ntsexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&ntsexpected, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&ntsexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	ntsactual := New(false)
@@ -52,10 +55,11 @@ func TestNew(t *testing.T) {
 		Normal,
 		true,
 		false,
-		Event{&ncexpected, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&ncexpected, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&ncexpected, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&ncexpected, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
+		aurora.NewAurora(false),
+		Event{&ncexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&ncexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&ncexpected, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&ncexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	ncactual := New(true, false)
@@ -69,10 +73,11 @@ func TestNew(t *testing.T) {
 		Normal,
 		false,
 		false,
-		Event{&falseexpected, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&falseexpected, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&falseexpected, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&falseexpected, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
+		aurora.NewAurora(false),
+		Event{&falseexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&falseexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&falseexpected, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&falseexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	falseactual := New(false, false)
@@ -297,7 +302,6 @@ func TestEventLog(t *testing.T) {
 	}
 	tn := time.Now()
 	tf := tn.Format("1/2/2006 3:04:05 PM MST")
-	fmt.Printf(res)
 	expected := tf + " - " + test.Debug.Prefix() + " " + message
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)

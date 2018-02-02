@@ -12,6 +12,8 @@ import (
 	"strings"
 	"text/tabwriter"
 	"time"
+
+	"github.com/logrusorgru/aurora"
 )
 
 // LogLevel is an uint8 that corresponds to a logging level
@@ -43,6 +45,7 @@ type Logger struct {
 	logLevel  LogLevel
 	timestamp bool
 	colored   bool
+	au        aurora.Aurora
 	Debug     Event
 	Info      Event
 	Notice    Event
@@ -54,23 +57,20 @@ type Event struct {
 	*Logger
 	timestamp bool
 	colored   bool
-	colors    int
+	colors    aurora.Color
 	format    int
 	prefix    string
 }
 
-// None is no color value
-const None int = 0
-
 // wrappers for aurora special formats
 const (
-	Bold int = 1 << iota
+	Bold aurora.Color = 1 << iota
 	Inverse
 )
 
 // wrappers for aurora foreground colors
 const (
-	BlackFg int = (1 + iota) << 16
+	BlackFg aurora.Color = (1 + iota) << 8
 	RedFg
 	GreenFg
 	BrownFg
@@ -82,7 +82,7 @@ const (
 
 // wrappers for aurora background colors
 const (
-	BlackBg int = (1 + iota) << 8
+	BlackBg = (1 + iota) << 16
 	RedBg
 	GreenBg
 	BrownBg
@@ -96,26 +96,29 @@ const (
 // called with one boolean arg, it will determine whether or not to show timestamps. The second arg is for whether or
 // not colorize the output.
 func New(a ...bool) *Logger {
-	l := Logger{}
-	l = Logger{
-		Normal,
-		true,
-		true,
-		Event{&l, true, true, GreenFg | None | None, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&l, true, true, None | None | None, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&l, true, true, BrownFg | None | None, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&l, true, true, RedFg | None | None, ShortDate | Time12Hour | TimeZone, "ERROR:"},
-	}
-
+	c := true
+	ts := true
 	if len(a) != 0 {
 		if !a[0] {
-			l.timestamp = false
+			ts = false
 		}
 		if len(a) != 1 {
 			if !a[1] {
-				l.colored = false
+				c = false
 			}
 		}
+	}
+
+	l := Logger{}
+	l = Logger{
+		Normal,
+		ts,
+		c,
+		aurora.NewAurora(c),
+		Event{&l, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
+		Event{&l, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
+		Event{&l, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
+		Event{&l, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
 	}
 
 	return &l
@@ -165,7 +168,7 @@ func (e *Event) ShowColor(b bool) {
 }
 
 // SetColors sets the foreground color, background color, and special format of the log event
-func (e *Event) SetColors(colors int) {
+func (e *Event) SetColors(colors aurora.Color) {
 	e.colors = colors
 }
 
@@ -276,8 +279,8 @@ func (e *Event) printf(format int, fstring string, a ...interface{}) (string, er
 	if err != nil {
 		return "", err
 	}
-	w := tabwriter.NewWriter(os.Stderr, 26, 0, 0, ' ', 0)
-	fmt.Fprintf(w, message, a...)
+	w := tabwriter.NewWriter(os.Stderr, 30, 0, 0, ' ', 0)
+	fmt.Fprint(w, fmt.Sprintf(fmt.Sprint(aurora.Colorize(message, e.colors)), a...))
 	w.Flush()
 	return fmt.Sprintf(message, a...), nil
 }
