@@ -132,6 +132,7 @@ func (e *Event) buildMessage(message string) (string, error) {
 	return fmessage + "\t\n", nil
 }
 
+// buildTimestamp constructs the timestamp using the format flags of the event.
 func (e *Event) buildTimestamp() (string, error) {
 	var datestamp, timestamp, zone string
 	var words []string
@@ -186,15 +187,46 @@ func (e *Event) printf(fstring string, a ...interface{}) (string, error) {
 	w := tabwriter.NewWriter(os.Stderr, spacing, 0, 0, ' ', 0)
 	fmt.Fprint(w, fmt.Sprintf(message, a...))
 	w.Flush()
+	if e.Logger.toDisk {
+		if err = e.writeToFile(fstring, a...); err != nil {
+			return "", err
+		}
+	}
 	return fmt.Sprintf(message, a...), nil
+}
+
+func (e *Event) writeToFile(fstring string, a ...interface{}) error {
+	var temp bool
+
+	f, err := os.OpenFile(e.Logger.logPath, os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	if e.colored && e.Logger.colored {
+		temp = true
+		e.ShowColor(false)
+	}
+
+	message, err := e.buildMessage(fstring)
+	if err != nil {
+		return err
+	}
+	if temp {
+		e.ShowColor(true)
+	}
+	message = fmt.Sprintf(message, a...)
+	f.WriteAt([]byte(message), 1)
+
+	return nil
 }
 
 func (e *Event) setSpacing() int {
 	if (e.cformat & Timestamp) == Timestamp {
-		return 35
+		return 34
 	}
 	if (e.cformat & Prefix) == Prefix {
-		return 26
+		return 25
 	}
 	return 0
 }
