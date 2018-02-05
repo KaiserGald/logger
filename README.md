@@ -43,59 +43,49 @@ Customizing Output
 
 ```go
 	l := logger.New()
-    l.SetLogLevel(Normal)
+  l.SetLogLevel(Normal)
 
-    l.Debug.Log("Debug Message")
-    l.Info.Log("Info Message")
-    l.Notice.Log("Notice Message")
-    l.Error.Log("Error Message")  
+  l.Debug.Log("Debug Message")
+  l.Info.Log("Info Message")
+  l.Notice.Log("Notice Message")
+  l.Error.Log("Error Message")  
 ```
 
 ###### Output
 
-```bash
-	2/5/2018 12:49:08 PM - NOTICE: Notice Message
-    2/5/2018 12:49:08 PM - ERROR: Error Message
-```
 
 #### Setting log format
 
 ```go
 	// returns a logger with timestamps disabled
 	l := logger.New(false)    
-    l.Error.Log("Error message")
+  l.Error.Log("Error message")
 
-    // re-enables timestamps
-    l.ShowTimestamp(true)
-    l.Error.Log("Timestamp's back")
+  // re-enables timestamps
+  l.ShowTimestamp(true)
+  l.Error.Log("Timestamp's back")
 
-    // sets timestamp format
-    l.SetFormat(logger.LongDate | logger.Time24Hour)
-    l.Error.Log("Timestamp change")
+  // sets timestamp format
+  l.SetFormat(logger.LongDate | logger.Time24Hour)
+  l.Error.Log("Timestamp change")
 ```
 
 ###### Output
 
-```bash
-    ERROR: Error message
-    2/5/2018 4:49:08 PM - ERROR: Timestamp's back
-    5 Feb 2018 16:49:08 - ERROR: Timestamp format
-```
 
 #### Colors
 ```go
 	// returns a logger with colors turned off
-    l := logger.New(true, false)
-    l.Error.Log("Error message")
-
+  l := logger.New(true, false)
+  l.Error.Log("Error message")
     // turn colors back on for all but Error messages
-    l.ShowColor(true)
-    l.Error.ShowColor(false)
+  l.ShowColor(true)
+  l.Error.ShowColor(false)
 
-    // change the color format of the message
-    l.Notice.SetColorFormat(logger.Timestamp | logger.Prefix | logger.Message)
-    l.Notice.Log("COLORS!")
-    l.Error.Log("No colors!")
+  // change the color format of the message
+  l.Notice.SetColorFormat(logger.Timestamp | logger.Prefix | logger.Message)
+  l.Notice.Log("COLORS!")
+  l.Error.Log("No colors!")
 
 ```
 ###### Output
@@ -104,8 +94,8 @@ Customizing Output
 #### Formatted Messages
 ```go
 	l := logger.New()
-    x := 3
-    y := 4
-    l.Notice.Log("%v + %v = %v", x, y, x+y)
+  x := 3
+  y := 4
+  l.Notice.Log("%v + %v = %v", x, y, x+y)
 ```
 ###### Output
