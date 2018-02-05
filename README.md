@@ -31,7 +31,7 @@ Logger is quite simple to get up and running. Simply create a new Logger, and st
 ```
 
 ###### Output
-![output](https://github.com/KaiserGald/logger/pics/basic.png)
+![output](pics/basic.png)
 
 
 Customizing Output
@@ -50,7 +50,7 @@ Customizing Output
 ```
 
 ###### Output
-![output](https://github.com/KaiserGald/logger/pics/loglevel.png)
+![output](pics/loglevel.png)
 
 #### Setting log format
 
@@ -69,7 +69,7 @@ Customizing Output
 ```
 
 ###### Output
-![output](https://github.com/KaiserGald/logger/pics/timeformat.png)
+![output](pics/timeformat.png)
 
 #### Colors
 
@@ -88,7 +88,7 @@ Customizing Output
   l.Error.Log("No colors!")
 ```
 ###### Output
-![output](https://github.com/KaiserGald/logger/pics/colorformat.png)
+![output](pics/colorformat.png)
 
 ##### Change Colors
 ```go
@@ -101,7 +101,7 @@ Customizing Output
 ```
 
 ###### Output
-![output](https://github.com/KaiserGald/logger/pics/colorchange.png)
+![output](pics/colorchange.png)
 
 #### Formatted Messages
 ```go
@@ -111,4 +111,4 @@ Customizing Output
   l.Notice.Log("%v + %v = %v", x, y, x+y)
 ```
 ###### Output
-![output](https://github.com/KaiserGald/logger/pics/printf.png)
+![output](pics/printf.png)
