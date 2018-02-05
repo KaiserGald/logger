@@ -1,7 +1,6 @@
 
-Logger
-===
-
+# Logger
+##### current version 1.1.0r
 ###### A simple, lightweight logger with support for custom prefixes, colored output, and leveled logging.
 
 Installation
