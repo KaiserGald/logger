@@ -18,6 +18,8 @@ import (
 
 // LogLevel is an uint8 that corresponds to a logging level
 type LogLevel uint8
+
+// ColorFormat is a uint8 for color flags
 type ColorFormat uint8
 
 // constants for LogLevels
@@ -191,6 +193,7 @@ func (e *Event) SetFormat(format int) error {
 	return nil
 }
 
+// SetColorFormat sets the format for the colored output. Timestamp adds color to the timestamp. Prefix adds color to the Prefix. Message adds color to the Message.
 func (e *Event) SetColorFormat(format ColorFormat) error {
 	if (format | cformatMask) != cformatMask {
 		return errors.New("Invalid color format")
@@ -259,7 +262,12 @@ func (e *Event) buildMessage(message string) (string, error) {
 			message = fmt.Sprint(aurora.Colorize(message, e.colors))
 		}
 	}
-	fmessage := timestamp + " - " + prefix + " " + message
+	var fmessage string
+	if e.Logger.timestamp && e.timestamp {
+		fmessage = timestamp + " - " + prefix + " " + message
+	} else {
+		fmessage = prefix + " " + message
+	}
 	return fmessage + "\t\n", nil
 }
 
