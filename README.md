@@ -26,15 +26,12 @@ Basic Usage
 Logger is quite simple to get up and running. Simply create a new Logger, and start logging messages!
 
 ```go
-   l := logger.New()
-   l.Error.Log("Error message")
+  l := logger.New()
+  l.Error.Log("Error message")
 ```
 
 ###### Output
 
-```bash
-	5 Feb 2018 12:49:08 PM - ERROR: Error message
-```
 
 Customizing Output
 ---
@@ -42,7 +39,7 @@ Customizing Output
 #### Setting Log Level
 
 ```go
-	l := logger.New()
+  l := logger.New()
   l.SetLogLevel(Normal)
 
   l.Debug.Log("Debug Message")
@@ -57,8 +54,8 @@ Customizing Output
 #### Setting log format
 
 ```go
-	// returns a logger with timestamps disabled
-	l := logger.New(false)    
+  // returns a logger with timestamps disabled
+  l := logger.New(false)    
   l.Error.Log("Error message")
 
   // re-enables timestamps
@@ -75,10 +72,10 @@ Customizing Output
 
 #### Colors
 ```go
-	// returns a logger with colors turned off
+  // returns a logger with colors turned off
   l := logger.New(true, false)
   l.Error.Log("Error message")
-    // turn colors back on for all but Error messages
+  // turn colors back on for all but Error messages
   l.ShowColor(true)
   l.Error.ShowColor(false)
 
@@ -86,14 +83,13 @@ Customizing Output
   l.Notice.SetColorFormat(logger.Timestamp | logger.Prefix | logger.Message)
   l.Notice.Log("COLORS!")
   l.Error.Log("No colors!")
-
 ```
 ###### Output
 
 
 #### Formatted Messages
 ```go
-	l := logger.New()
+  l := logger.New()
   x := 3
   y := 4
   l.Notice.Log("%v + %v = %v", x, y, x+y)
