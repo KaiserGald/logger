@@ -9,46 +9,48 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
-// LogLevel is an uint8 that corresponds to a logging level
+// The LogLevel type represents the current logging level of the logger.
 type LogLevel uint8
 
-// ColorFormat is a uint8 for color flags
+// The ColorFormat type represents formatting flags for the colorizer.
 type ColorFormat uint8
 
-// constants for LogLevels
+// Constants for defining LogLevels.
 const (
-	All LogLevel = iota
-	Verbose
-	Normal
-	ErrorsOnly
-	Test
+	All        LogLevel = iota // All events will be logged.
+	Verbose                    // Debug events will not be shown.
+	Normal                     // Info events will not be shown.
+	ErrorsOnly                 // Notice events will not be shown.
+	Test                       // No events will be shown.
 )
 
-// constants for timestamp format
+// Timestamp format flags can be used in the format (dateflag|hourflag|timezoneflag).
+// If you try to set or use an invalid set of flags (two dateflags or two hourflags) you cause an error.
 const (
-	ShortDate = 1 << iota
-	LongDate
-	Time12Hour
-	Time24Hour
-	TimeZone
-	datemask = ShortDate | LongDate
-	hourmask = Time12Hour | Time24Hour
-	timemask = TimeZone
+	ShortDate  = 1 << iota //"1/2/2006"
+	LongDate               //"2 Jan 2006"
+	Time12Hour             //"3:04:05 PM"
+	Time24Hour             //"15:05:05"
+	TimeZone               //"MST"
+	datemask   = ShortDate | LongDate
+	hourmask   = Time12Hour | Time24Hour
+	timemask   = TimeZone
 )
 
-// Logger struct
+// A Logger represents a collection of event loggers.
 type Logger struct {
 	logLevel  LogLevel
 	timestamp bool
 	colored   bool
 	au        aurora.Aurora
-	Debug     Event
-	Info      Event
-	Notice    Event
-	Error     Event
+	Debug     Event // Debug event controller
+	Info      Event // Info event controller
+	Notice    Event // Notice event controller
+	Error     Event // Error event controller
 }
 
-// Color format flags
+// Color format flags for determining which parts of an event log get colored.
+// If either the Logger's or corresponding Event's colored flag is flase, no colors will be displayed. The '-' in the log will not be colored.
 const (
 	Timestamp ColorFormat = 1 << iota
 	Prefix
@@ -56,13 +58,13 @@ const (
 	cformatMask = Timestamp | Prefix | Message
 )
 
-// wrappers for aurora special formats
+// Wrappers for aurora special formats.
 const (
 	Bold aurora.Color = 1 << iota
 	Inverse
 )
 
-// wrappers for aurora foreground colors
+// Wrappers for aurora foreground colors.
 const (
 	BlackFg aurora.Color = (1 + iota) << 8
 	RedFg
@@ -74,7 +76,7 @@ const (
 	GrayFg
 )
 
-// wrappers for aurora background colors
+// Wrappers for aurora background colors.
 const (
 	BlackBg = (1 + iota) << 16
 	RedBg
@@ -118,6 +120,27 @@ func New(a ...bool) *Logger {
 	return &l
 }
 
+// LogLevel returns the current log level.
+func (l *Logger) LogLevel() LogLevel {
+	return l.logLevel
+}
+
+// SetLogLevel sets the logLevel to the given LogLevel.
+func (l *Logger) SetLogLevel(lv LogLevel) {
+	l.logLevel = lv
+}
+
+// ShowTimestamp sets whether or not to show timestamps for the entire logger.
+func (l *Logger) ShowTimestamp(b bool) {
+	l.timestamp = b
+}
+
+// ShowColor sets whether or not to use colors for the entire logger.
+func (l *Logger) ShowColor(b bool) {
+	l.colored = b
+}
+
+// validateTimestamp returns true if the given timestamp format is valid.
 func validateTimestamp(timestamp int) bool {
 	d := true
 	h := true
@@ -129,24 +152,4 @@ func validateTimestamp(timestamp int) bool {
 	}
 
 	return d && h
-}
-
-// LogLevel returns the current log level
-func (l *Logger) LogLevel() LogLevel {
-	return l.logLevel
-}
-
-// SetLogLevel sets the logLevel
-func (l *Logger) SetLogLevel(lv LogLevel) {
-	l.logLevel = lv
-}
-
-// ShowTimestamp sets whether or not to show timestamps for the entire logger
-func (l *Logger) ShowTimestamp(b bool) {
-	l.timestamp = b
-}
-
-// ShowColor sets whether or not to use colors for the entire logger
-func (l *Logger) ShowColor(b bool) {
-	l.colored = b
 }

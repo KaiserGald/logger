@@ -396,9 +396,9 @@ func TestEventLog(t *testing.T) {
 	}
 	tn = time.Now()
 	tf = tn.Format("1/2/2006 3:04:05 PM MST")
+	expected = tf + " - " + greenfg + test.Debug.Prefix() + clear + " " + greenfg + message + clear
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)
-	expected = tf + " - " + greenfg + test.Debug.Prefix() + clear + " " + greenfg + message + clear
 	if res != expected {
 		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
 	}
@@ -411,9 +411,9 @@ func TestEventLog(t *testing.T) {
 	}
 	tn = time.Now()
 	tf = tn.Format("1/2/2006 3:04:05 PM MST")
+	expected = redfg + tf + clear + " - " + redfg + test.Error.Prefix() + clear + " " + redfg + message + clear
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)
-	expected = redfg + tf + clear + " - " + redfg + test.Error.Prefix() + clear + " " + redfg + message + clear
 	if res != expected {
 		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
 	}
@@ -426,9 +426,9 @@ func TestEventLog(t *testing.T) {
 	}
 	tn = time.Now()
 	tf = tn.Format("1/2/2006 3:04:05 PM MST")
+	expected = grayfg + tf + clear + " - " + test.Info.Prefix() + " " + grayfg + message + clear
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)
-	expected = grayfg + tf + clear + " - " + test.Info.Prefix() + " " + grayfg + message + clear
 	if res != expected {
 		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
 	}
@@ -440,9 +440,9 @@ func TestEventLog(t *testing.T) {
 	}
 	tn = time.Now()
 	tf = tn.Format("1/2/2006 3:04:05 PM MST")
+	expected = tf + " - " + test.Debug.Prefix() + " " + message
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)
-	expected = tf + " - " + test.Debug.Prefix() + " " + message
 	if res != expected {
 		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
 	}
