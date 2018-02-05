@@ -10,13 +10,13 @@ Installation
 ##### Get
 
 ```bash
-	go get github.com/KaiserGald/logger.git
+go get github.com/KaiserGald/logger.git
 ```
 
 ##### Test
 
 ```bash
-	make all
+make all
 ```
 
 
@@ -31,6 +31,7 @@ Logger is quite simple to get up and running. Simply create a new Logger, and st
 ```
 
 ###### Output
+![output](https://github.com/KaiserGald/logger/pics/basic.png)
 
 
 Customizing Output
@@ -49,7 +50,7 @@ Customizing Output
 ```
 
 ###### Output
-
+![output](https://github.com/KaiserGald/logger/pics/loglevel.png)
 
 #### Setting log format
 
@@ -68,9 +69,11 @@ Customizing Output
 ```
 
 ###### Output
-
+![output](https://github.com/KaiserGald/logger/pics/timeformat.png)
 
 #### Colors
+
+##### Enable/Disable and Format Colors
 ```go
   // returns a logger with colors turned off
   l := logger.New(true, false)
@@ -85,7 +88,20 @@ Customizing Output
   l.Error.Log("No colors!")
 ```
 ###### Output
+![output](https://github.com/KaiserGald/logger/pics/colorformat.png)
 
+##### Change Colors
+```go
+  l := logger.New()
+
+  l.Error.SetColorFormat(logger.Timestamp | logger.Prefix | logger.Message)
+  l.Error.SetColors(logger.MagentaBg | logger.CyanFg)
+
+  l.Error.Log("Color change")
+```
+
+###### Output
+![output](https://github.com/KaiserGald/logger/pics/colorchange.png)
 
 #### Formatted Messages
 ```go
@@ -95,3 +111,4 @@ Customizing Output
   l.Notice.Log("%v + %v = %v", x, y, x+y)
 ```
 ###### Output
+![output](https://github.com/KaiserGald/logger/pics/printf.png)
