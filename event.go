@@ -16,9 +16,10 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
-// Event contains information about the logging level
+// An Event represents a message with a given level of importance to be printed to the
+// log.
 type Event struct {
-	*Logger
+	*Logger   // a Pointer to the parent Logger
 	timestamp bool
 	colored   bool
 	colors    aurora.Color
@@ -32,7 +33,7 @@ func (e *Event) ShowTimestamp(b bool) {
 	e.timestamp = b
 }
 
-// ShowColor sets wether or not to show color for this log event
+// ShowColor sets wether or not to show color for this log event.
 func (e *Event) ShowColor(b bool) {
 	e.colored = b
 }
@@ -60,12 +61,14 @@ func (e *Event) SetColorFormat(format ColorFormat) error {
 	return nil
 }
 
-// Prefix returns the prefix of the log event
+// Prefix returns the prefix of the log event.
 func (e *Event) Prefix() string {
 	return e.prefix
 }
 
-// Log logs the given message via the appropriate log event to STDERR
+// Log logs the given message via the appropriate log event to STDERR. It will not
+// display any log event that is lower than the given level. Debug will not show when
+// the log level is Normal.
 func (e *Event) Log(fstring string, a ...interface{}) (string, error) {
 	var entry string
 	var err error
@@ -103,7 +106,7 @@ func (e *Event) Log(fstring string, a ...interface{}) (string, error) {
 	return entry, nil
 }
 
-// buildMessage constructs a message using the given input and format code
+// buildMessage constructs a message using the given input and format code.
 func (e *Event) buildMessage(message string) (string, error) {
 	timestamp, err := e.buildTimestamp()
 	if err != nil {
