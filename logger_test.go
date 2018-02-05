@@ -14,6 +14,11 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
+const (
+	esc   = "\033["
+	clear = esc + "0m"
+)
+
 func TestNew(t *testing.T) {
 	defexpected := Logger{}
 	defexpected = Logger{
@@ -21,10 +26,10 @@ func TestNew(t *testing.T) {
 		true,
 		true,
 		aurora.NewAurora(true),
-		Event{&defexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&defexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&defexpected, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&defexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
+		Event{&defexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, Prefix, "DEBUG:"},
+		Event{&defexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, Prefix, "INFO:"},
+		Event{&defexpected, true, true, YellowFg, ShortDate | Time12Hour | TimeZone, Prefix, "NOTICE:"},
+		Event{&defexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, Prefix, "ERROR:"},
 	}
 
 	defactual := New()
@@ -38,10 +43,10 @@ func TestNew(t *testing.T) {
 		false,
 		true,
 		aurora.NewAurora(true),
-		Event{&ntsexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&ntsexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&ntsexpected, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&ntsexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
+		Event{&ntsexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, Prefix, "DEBUG:"},
+		Event{&ntsexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, Prefix, "INFO:"},
+		Event{&ntsexpected, true, true, YellowFg, ShortDate | Time12Hour | TimeZone, Prefix, "NOTICE:"},
+		Event{&ntsexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, Prefix, "ERROR:"},
 	}
 
 	ntsactual := New(false)
@@ -56,10 +61,10 @@ func TestNew(t *testing.T) {
 		true,
 		false,
 		aurora.NewAurora(false),
-		Event{&ncexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&ncexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&ncexpected, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&ncexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
+		Event{&ncexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, Prefix, "DEBUG:"},
+		Event{&ncexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, Prefix, "INFO:"},
+		Event{&ncexpected, true, true, YellowFg, ShortDate | Time12Hour | TimeZone, Prefix, "NOTICE:"},
+		Event{&ncexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, Prefix, "ERROR:"},
 	}
 
 	ncactual := New(true, false)
@@ -74,10 +79,10 @@ func TestNew(t *testing.T) {
 		false,
 		false,
 		aurora.NewAurora(false),
-		Event{&falseexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, "DEBUG:"},
-		Event{&falseexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, "INFO:"},
-		Event{&falseexpected, true, true, BrownFg, ShortDate | Time12Hour | TimeZone, "NOTICE:"},
-		Event{&falseexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, "ERROR:"},
+		Event{&falseexpected, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, Prefix, "DEBUG:"},
+		Event{&falseexpected, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, Prefix, "INFO:"},
+		Event{&falseexpected, true, true, YellowFg, ShortDate | Time12Hour | TimeZone, Prefix, "NOTICE:"},
+		Event{&falseexpected, true, true, RedFg, ShortDate | Time12Hour | TimeZone, Prefix, "ERROR:"},
 	}
 
 	falseactual := New(false, false)
@@ -269,6 +274,18 @@ func TestSetFormat(t *testing.T) {
 	}
 }
 
+func TestSetColorFormat(t *testing.T) {
+	test := New()
+	if err := test.Debug.SetColorFormat(Prefix); err != nil {
+		t.Errorf("Error setting color format: '%v'", err)
+	}
+
+	if err := test.Debug.SetColorFormat(123); err == nil {
+		t.Errorf("Bad format data didn't trigger error")
+	}
+
+}
+
 func TestEventPrefix(t *testing.T) {
 	test := New()
 	expected := "DEBUG:"
@@ -293,6 +310,10 @@ func TestEventPrefix(t *testing.T) {
 }
 
 func TestEventLog(t *testing.T) {
+	greenfg := esc + aurora.GreenFg.Nos() + "m"
+	grayfg := esc + aurora.GrayFg.Nos() + "m"
+	yellowfg := esc + aurora.BrownFg.Nos() + "m"
+	redfg := esc + aurora.RedFg.Nos() + "m"
 	test := New()
 	message := "Test message"
 	test.SetLogLevel(All)
@@ -302,13 +323,12 @@ func TestEventLog(t *testing.T) {
 	}
 	tn := time.Now()
 	tf := tn.Format("1/2/2006 3:04:05 PM MST")
-	expected := tf + " - " + test.Debug.Prefix() + " " + message
+	expected := tf + " - " + greenfg + test.Debug.Prefix() + clear + " " + message
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)
 	if res != expected {
-		t.Errorf("Strings do not match, expected '%v' got '%v'", res, expected)
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
 	}
-
 	test.SetLogLevel(Normal)
 	res, err = test.Debug.Log(message)
 	if err != nil {
@@ -320,6 +340,7 @@ func TestEventLog(t *testing.T) {
 	}
 
 	test.SetLogLevel(Verbose)
+	test.Info.SetColorFormat(Timestamp)
 	test.Info.SetFormat(Time24Hour | TimeZone)
 	res, err = test.Info.Log(message)
 	if err != nil {
@@ -327,7 +348,7 @@ func TestEventLog(t *testing.T) {
 	}
 	tn = time.Now()
 	tf = tn.Format("15:04:05 MST")
-	expected = tf + " - " + test.Info.Prefix() + " " + message
+	expected = grayfg + tf + clear + " - " + test.Info.Prefix() + " " + message
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)
 	if res != expected {
@@ -336,13 +357,14 @@ func TestEventLog(t *testing.T) {
 
 	test.SetLogLevel(Normal)
 	test.Notice.SetFormat(LongDate | TimeZone)
+	test.Notice.SetColorFormat(Timestamp | Prefix)
 	res, err = test.Notice.Log(message)
 	if err != nil {
 		t.Errorf("Error building string: %v", err)
 	}
 	tn = time.Now()
 	tf = tn.Format("2 Jan 2006 MST")
-	expected = tf + " - " + test.Notice.Prefix() + " " + message
+	expected = yellowfg + tf + clear + " - " + yellowfg + test.Notice.Prefix() + clear + " " + message
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)
 	if res != expected {
@@ -351,13 +373,14 @@ func TestEventLog(t *testing.T) {
 
 	test.SetLogLevel(ErrorsOnly)
 	test.Error.SetFormat(LongDate | Time12Hour | TimeZone)
+	test.Error.SetColorFormat(Message)
 	res, err = test.Error.Log(message)
 	if err != nil {
 		t.Errorf("Error building string: %v", err)
 	}
 	tn = time.Now()
 	tf = tn.Format("2 Jan 2006 3:04:05 PM MST")
-	expected = tf + " - " + test.Error.Prefix() + " " + message
+	expected = tf + " - " + test.Error.Prefix() + " " + redfg + message + clear
 	res = trimSpaces(res)
 	expected = trimSpaces(expected)
 	if res != expected {
@@ -365,6 +388,65 @@ func TestEventLog(t *testing.T) {
 	}
 
 	test.SetLogLevel(All)
+	test.Debug.SetFormat(ShortDate | Time12Hour | TimeZone)
+	test.Debug.SetColorFormat(Prefix | Message)
+	res, err = test.Debug.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	tn = time.Now()
+	tf = tn.Format("1/2/2006 3:04:05 PM MST")
+	res = trimSpaces(res)
+	expected = trimSpaces(expected)
+	expected = tf + " - " + greenfg + test.Debug.Prefix() + clear + " " + greenfg + message + clear
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
+	}
+
+	test.Error.SetColorFormat(Timestamp | Prefix | Message)
+	test.Error.SetFormat(ShortDate | Time12Hour | TimeZone)
+	res, err = test.Error.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	tn = time.Now()
+	tf = tn.Format("1/2/2006 3:04:05 PM MST")
+	res = trimSpaces(res)
+	expected = trimSpaces(expected)
+	expected = redfg + tf + clear + " - " + redfg + test.Error.Prefix() + clear + " " + redfg + message + clear
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
+	}
+
+	test.Info.SetColorFormat(Timestamp | Message)
+	test.Info.SetFormat(ShortDate | Time12Hour | TimeZone)
+	res, err = test.Info.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	tn = time.Now()
+	tf = tn.Format("1/2/2006 3:04:05 PM MST")
+	res = trimSpaces(res)
+	expected = trimSpaces(expected)
+	expected = grayfg + tf + clear + " - " + test.Info.Prefix() + " " + grayfg + message + clear
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
+	}
+
+	test.ShowColor(false)
+	res, err = test.Debug.Log(message)
+	if err != nil {
+		t.Errorf("Error building string: %v", err)
+	}
+	tn = time.Now()
+	tf = tn.Format("1/2/2006 3:04:05 PM MST")
+	res = trimSpaces(res)
+	expected = trimSpaces(expected)
+	expected = tf + " - " + test.Debug.Prefix() + " " + message
+	if res != expected {
+		t.Errorf("Strings do not match, expected '%v' got '%v'", expected, res)
+	}
+
 	test.Debug.format = ShortDate | LongDate
 	test.Info.format = ShortDate | LongDate
 	test.Notice.format = ShortDate | LongDate
@@ -385,11 +467,12 @@ func TestEventLog(t *testing.T) {
 }
 
 func TestBuildMessage(t *testing.T) {
+	greenfg := esc + aurora.GreenFg.Nos() + "m"
 	test := New()
 	now := time.Now()
 	timeformat := now.Format("1/2/2006 3:04:05 PM MST")
-	expected := timeformat + " - DEBUG: Test event"
-	actual, err := test.Debug.buildMessage("Test event", test.Debug.format)
+	expected := timeformat + " - " + greenfg + "DEBUG:" + clear + " Test event"
+	actual, err := test.Debug.buildMessage("Test event")
 	if err != nil {
 		t.Errorf("Error building message: %v", err)
 	}
@@ -399,7 +482,8 @@ func TestBuildMessage(t *testing.T) {
 		t.Errorf("Messages don't match, expected '%v' got '%v'", expected, actual)
 	}
 
-	_, err = test.Debug.buildMessage("Test event", ShortDate|LongDate)
+	test.Debug.format = ShortDate | LongDate
+	_, err = test.Debug.buildMessage("Test event")
 	if err == nil {
 		t.Errorf("Bad input did not trigger error")
 	}
@@ -483,7 +567,8 @@ func TestBuildTimestamp(t *testing.T) {
 	test := New()
 	now := time.Now()
 	expectedf := now.Format("1/2/2006")
-	actualf, err := test.Debug.buildTimestamp(ShortDate)
+	test.Debug.SetFormat(ShortDate)
+	actualf, err := test.Debug.buildTimestamp()
 	if err != nil {
 		t.Errorf("Error building timestamp: %v", err)
 	}
@@ -495,7 +580,8 @@ func TestBuildTimestamp(t *testing.T) {
 
 	now = time.Now()
 	expectedf = now.Format("2 Jan 2006")
-	actualf, err = test.Debug.buildTimestamp(LongDate)
+	test.Debug.SetFormat(LongDate)
+	actualf, err = test.Debug.buildTimestamp()
 	if err != nil {
 		t.Errorf("Error building timestamp: %v", err)
 	}
@@ -506,7 +592,8 @@ func TestBuildTimestamp(t *testing.T) {
 
 	now = time.Now()
 	expectedf = now.Format("3:04:05 PM")
-	actualf, err = test.Debug.buildTimestamp(Time12Hour)
+	test.Debug.SetFormat(Time12Hour)
+	actualf, err = test.Debug.buildTimestamp()
 	if err != nil {
 		t.Errorf("Error building timestamp: %v", err)
 	}
@@ -517,7 +604,8 @@ func TestBuildTimestamp(t *testing.T) {
 
 	now = time.Now()
 	expectedf = now.Format("15:04:05")
-	actualf, err = test.Debug.buildTimestamp(Time24Hour)
+	test.Debug.SetFormat(Time24Hour)
+	actualf, err = test.Debug.buildTimestamp()
 	if err != nil {
 		t.Errorf("Error building timestamp: %v", err)
 	}
@@ -528,7 +616,8 @@ func TestBuildTimestamp(t *testing.T) {
 
 	now = time.Now()
 	expectedf = now.Format("3:04:05 PM MST")
-	actualf, err = test.Debug.buildTimestamp(Time12Hour | TimeZone)
+	test.Debug.SetFormat(Time12Hour | TimeZone)
+	actualf, err = test.Debug.buildTimestamp()
 	if err != nil {
 		t.Errorf("Error building timestamp: %v", err)
 	}
@@ -538,7 +627,8 @@ func TestBuildTimestamp(t *testing.T) {
 	}
 
 	now = time.Now()
-	_, err = test.Debug.buildTimestamp(Time12Hour | Time24Hour)
+	test.Debug.format = (ShortDate | LongDate)
+	_, err = test.Debug.buildTimestamp()
 	if err == nil {
 		t.Errorf("Bad input did not trigger error")
 	}
