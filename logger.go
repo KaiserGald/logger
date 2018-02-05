@@ -88,7 +88,7 @@ const (
 	GrayBg
 )
 
-// New creates a new Logger based on the arguments. An empty New() will return a Logger with default settings. Optional arguments are called with following format New(colored, showtimestamp). This is effectivel the same as making a new Logger and then calling logger.ShowColor(true) and logger.ShowTimestamp(true).
+// New creates a new Logger based on the arguments. An empty New() will return a Logger with default settings. Optional arguments are called with following format New(colored, showtimestamp). This is effectively the same as making a new Logger and then calling logger.ShowColor(true) and logger.ShowTimestamp(true).
 func New(a ...bool) *Logger {
 	c := true
 	ts := true
