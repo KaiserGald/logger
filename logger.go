@@ -6,6 +6,8 @@
 package logger
 
 import (
+	"os"
+
 	"github.com/logrusorgru/aurora"
 )
 
@@ -43,6 +45,8 @@ type Logger struct {
 	timestamp bool
 	colored   bool
 	au        aurora.Aurora
+	toDisk    bool
+	logPath   string
 	Debug     Event // Debug event controller
 	Info      Event // Info event controller
 	Notice    Event // Notice event controller
@@ -109,6 +113,8 @@ func New(a ...bool) *Logger {
 		ts,
 		c,
 		aurora.NewAurora(c),
+		false,
+		"",
 		Event{&l, true, true, GreenFg, ShortDate | Time12Hour | TimeZone, Prefix, "DEBUG:"},
 		Event{&l, true, true, GrayFg, ShortDate | Time12Hour | TimeZone, Prefix, "INFO:"},
 		Event{&l, true, true, YellowFg, ShortDate | Time12Hour | TimeZone, Prefix, "NOTICE:"},
@@ -136,6 +142,35 @@ func (l *Logger) ShowTimestamp(b bool) {
 // ShowColor sets whether or not to use colors for the entire logger.
 func (l *Logger) ShowColor(b bool) {
 	l.colored = b
+}
+
+// SaveLog will save the log to a file on disk at the given path.
+func (l *Logger) SaveLog(path string) error {
+	logFile := "/log.log"
+	if !l.toDisk {
+		l.toDisk = true
+	}
+
+	_, err := os.Stat(path)
+	if err != nil {
+		err = os.MkdirAll(path, 0777)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = os.OpenFile(path+logFile, os.O_RDWR|os.O_CREATE, 0777)
+	if err != nil {
+		return err
+	}
+
+	l.logPath = path + logFile
+	return nil
+}
+
+// StopSaveLog will stop logging from happening with the current logger.
+func (l *Logger) StopSaveLog() {
+	l.toDisk = false
 }
 
 // validateTimestamp returns true if the given timestamp format is valid.
