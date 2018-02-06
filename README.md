@@ -1,6 +1,6 @@
 
 # Logger
-##### current version 1.2.0dev
+##### current version 1.2.0
 ###### A simple, lightweight logger with support for custom prefixes, colored output, and leveled logging.
 
 Installation
